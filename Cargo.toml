@@ -6,3 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+z3 = { git = "https://github.com/Bickio/z3.rs", branch = "build-issues" }
+
+[lib]
+name = "witness"
+path = "src/lib.rs"
