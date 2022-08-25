@@ -1,6 +1,8 @@
 use crate::puzzle;
 use crate::puzzle::EdgeDirection;
 use crate::puzzle::IntersectionOrEdge;
+use itertools::Itertools;
+use z3::ast::Ast;
 
 #[derive(Debug, Clone)]
 struct Node<'ctx> {
@@ -9,6 +11,7 @@ struct Node<'ctx> {
     exit: bool,
     dot: bool,
     has_line: z3::ast::Bool<'ctx>,
+    line_index: z3::ast::Int<'ctx>,
     source_used: z3::ast::Bool<'ctx>,
     exit_used: z3::ast::Bool<'ctx>,
 }
@@ -171,6 +174,7 @@ impl<'ctx> PuzzleModel<'ctx> {
                         exit: false,
                         dot: false,
                         has_line: z3::ast::Bool::fresh_const(&ctx, "has_line"),
+                        line_index: z3::ast::Int::fresh_const(&ctx, "line_index"),
                         source_used: z3::ast::Bool::fresh_const(&ctx, "source_used"),
                         exit_used: z3::ast::Bool::fresh_const(&ctx, "exit_used"),
                     })
@@ -269,11 +273,27 @@ impl<'ctx> PuzzleModel<'ctx> {
         let one_adjacent_line = z3::ast::Bool::pb_eq(&self.ctx, &adjacent_nodes_with_line, 1);
         let two_adjacent_lines = z3::ast::Bool::pb_eq(&self.ctx, &adjacent_nodes_with_line, 2);
 
+        let one = z3::ast::Int::from_i64(&self.ctx, 1);
+        let consecutive_numbers = adjacent_nodes
+            .into_iter()
+            .combinations(2)
+            .map(|pair| {
+                let pair_has_line = &pair[0].has_line & &pair[1].has_line;
+                let increasing = &node.line_index._eq(&(&pair[0].line_index - &one))
+                    & &node.line_index._eq(&(&pair[1].line_index + &one));
+                let decreasing = &node.line_index._eq(&(&pair[0].line_index + &one))
+                    & &node.line_index._eq(&(&pair[1].line_index - &one));
+                pair_has_line.implies(&(&increasing | &decreasing))
+            })
+            .reduce(|acc, condition| acc & condition)
+            .unwrap_or(z3::ast::Bool::from_bool(&self.ctx, false));
+
         let is_source_or_exit = &node.exit_used | &node.source_used;
         let is_source_and_exit = &node.exit_used & &node.source_used;
 
         let valid_not_in_line = !&node.has_line & !&is_source_or_exit;
-        let valid_middle_of_line = &node.has_line & !&is_source_or_exit & &two_adjacent_lines;
+        let valid_middle_of_line =
+            &node.has_line & !&is_source_or_exit & &two_adjacent_lines & &consecutive_numbers;
         let valid_end_of_line = &node.has_line & &is_source_or_exit & &one_adjacent_line;
         let valid_entire_line = &node.has_line & &is_source_and_exit & &zero_adjacent_lines;
         solver.assert(
