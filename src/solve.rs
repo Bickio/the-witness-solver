@@ -76,12 +76,12 @@ impl<'ctx> PuzzleModel<'ctx> {
             IntersectionOrEdge::Intersection(intersection) => self
                 .adjacent_edges(intersection)
                 .into_iter()
-                .map(|edge| IntersectionOrEdge::Edge(edge))
+                .map(IntersectionOrEdge::Edge)
                 .collect(),
             IntersectionOrEdge::Edge(edge) => self
                 .adjacent_intersections(edge)
                 .into_iter()
-                .map(|intersection| IntersectionOrEdge::Intersection(intersection))
+                .map(IntersectionOrEdge::Intersection)
                 .collect(),
         }
     }
@@ -153,9 +153,9 @@ impl<'ctx> PuzzleModel<'ctx> {
             ctx,
             width: p.width,
             height: p.height,
-            intersections: Self::create_node_2d_vec(&ctx, p.width + 1, p.height + 1),
-            horizontal_edges: Self::create_node_2d_vec(&ctx, p.width, p.height + 1),
-            vertical_edges: Self::create_node_2d_vec(&ctx, p.width + 1, p.height),
+            intersections: Self::create_node_2d_vec(ctx, p.width + 1, p.height + 1),
+            horizontal_edges: Self::create_node_2d_vec(ctx, p.width, p.height + 1),
+            vertical_edges: Self::create_node_2d_vec(ctx, p.width + 1, p.height),
         };
         model.add_broken(&p.broken);
         model.add_sources(&p.sources);
@@ -173,10 +173,10 @@ impl<'ctx> PuzzleModel<'ctx> {
                         source: false,
                         exit: false,
                         dot: false,
-                        has_line: z3::ast::Bool::fresh_const(&ctx, "has_line"),
-                        line_index: z3::ast::Int::fresh_const(&ctx, "line_index"),
-                        source_used: z3::ast::Bool::fresh_const(&ctx, "source_used"),
-                        exit_used: z3::ast::Bool::fresh_const(&ctx, "exit_used"),
+                        has_line: z3::ast::Bool::fresh_const(ctx, "has_line"),
+                        line_index: z3::ast::Int::fresh_const(ctx, "line_index"),
+                        source_used: z3::ast::Bool::fresh_const(ctx, "source_used"),
+                        exit_used: z3::ast::Bool::fresh_const(ctx, "exit_used"),
                     })
                     .collect()
             })
@@ -269,11 +269,11 @@ impl<'ctx> PuzzleModel<'ctx> {
             .iter()
             .map(|adj| (&adj.has_line, 1))
             .collect::<Vec<_>>();
-        let zero_adjacent_lines = z3::ast::Bool::pb_eq(&self.ctx, &adjacent_nodes_with_line, 0);
-        let one_adjacent_line = z3::ast::Bool::pb_eq(&self.ctx, &adjacent_nodes_with_line, 1);
-        let two_adjacent_lines = z3::ast::Bool::pb_eq(&self.ctx, &adjacent_nodes_with_line, 2);
+        let zero_adjacent_lines = z3::ast::Bool::pb_eq(self.ctx, &adjacent_nodes_with_line, 0);
+        let one_adjacent_line = z3::ast::Bool::pb_eq(self.ctx, &adjacent_nodes_with_line, 1);
+        let two_adjacent_lines = z3::ast::Bool::pb_eq(self.ctx, &adjacent_nodes_with_line, 2);
 
-        let one = z3::ast::Int::from_i64(&self.ctx, 1);
+        let one = z3::ast::Int::from_i64(self.ctx, 1);
         let consecutive_numbers = adjacent_nodes
             .into_iter()
             .combinations(2)
@@ -286,7 +286,7 @@ impl<'ctx> PuzzleModel<'ctx> {
                 pair_has_line.implies(&(&increasing | &decreasing))
             })
             .reduce(|acc, condition| acc & condition)
-            .unwrap_or(z3::ast::Bool::from_bool(&self.ctx, false));
+            .unwrap_or_else(|| z3::ast::Bool::from_bool(self.ctx, false));
 
         let is_source_or_exit = &node.exit_used | &node.source_used;
         let is_source_and_exit = &node.exit_used & &node.source_used;
@@ -343,14 +343,14 @@ impl<'ctx> PuzzleModel<'ctx> {
                         return false;
                     }
                     if model
-                        .eval(&self.node(&adj).has_line, true)
+                        .eval(&self.node(adj).has_line, true)
                         .unwrap()
                         .as_bool()
                         .unwrap()
                     {
                         return true;
                     }
-                    return false;
+                    false
                 })
                 .expect("No continuation of line found");
             line.push(current.clone());
@@ -359,8 +359,7 @@ impl<'ctx> PuzzleModel<'ctx> {
     }
 
     fn extract_line_start(&self, model: &z3::Model) -> IntersectionOrEdge {
-        return self
-            .intersections_and_edges()
+        self.intersections_and_edges()
             .into_iter()
             .find(|intersection_or_edge| {
                 model
@@ -369,7 +368,7 @@ impl<'ctx> PuzzleModel<'ctx> {
                     .as_bool()
                     .unwrap()
             })
-            .expect("Could not find start of line");
+            .expect("Could not find start of line")
     }
 }
 
