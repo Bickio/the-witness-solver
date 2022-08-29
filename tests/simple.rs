@@ -9,6 +9,7 @@ fn minimal_sat() {
         exits: vec![IntersectionOrEdge::Intersection(Pos { x: 0, y: 0 })],
         broken: vec![],
         dots: vec![],
+        squares: vec![],
     };
     assert_eq!(
         solve(&puzzle),
@@ -28,6 +29,7 @@ fn minimal_unsat() {
             dir: EdgeDirection::Vertical,
         })],
         dots: vec![],
+        squares: vec![],
     };
     assert_eq!(solve(&puzzle), None);
 }
@@ -44,6 +46,7 @@ fn simple_sat() {
             dir: EdgeDirection::Vertical,
         })],
         dots: vec![],
+        squares: vec![],
     };
     assert_eq!(
         solve(&puzzle),
@@ -75,6 +78,7 @@ fn moving_upwards() {
             dir: EdgeDirection::Horizontal,
         })],
         dots: vec![],
+        squares: vec![],
     };
     assert_eq!(
         solve(&puzzle),
@@ -106,6 +110,7 @@ fn simple_unsat() {
             IntersectionOrEdge::Intersection(Pos { x: 1, y: 0 }),
         ],
         dots: vec![],
+        squares: vec![],
     };
     assert_eq!(solve(&puzzle), None);
 }
@@ -142,6 +147,7 @@ fn sat_with_edges() {
             }),
         ],
         dots: vec![],
+        squares: vec![],
     };
     assert!(matches!(solve(&puzzle), Some(_)));
 }
@@ -182,6 +188,7 @@ fn unsat_with_edges() {
             }),
         ],
         dots: vec![],
+        squares: vec![],
     };
     assert_eq!(solve(&puzzle), None);
 }
@@ -198,6 +205,7 @@ fn no_source() {
         ],
         broken: vec![],
         dots: vec![],
+        squares: vec![],
     };
     assert_eq!(solve(&puzzle), None);
 }
@@ -214,6 +222,7 @@ fn no_exit() {
         exits: vec![],
         broken: vec![],
         dots: vec![],
+        squares: vec![],
     };
     assert_eq!(solve(&puzzle), None);
 }
@@ -236,6 +245,7 @@ fn multiple_sources() {
             IntersectionOrEdge::Intersection(Pos { x: 1, y: 0 }),
         ],
         dots: vec![],
+        squares: vec![],
     };
     assert!(matches!(solve(&puzzle), Some(_)));
 }
@@ -261,6 +271,7 @@ fn multiple_exits() {
             }),
         ],
         dots: vec![],
+        squares: vec![],
     };
     assert!(matches!(solve(&puzzle), Some(_)));
 }

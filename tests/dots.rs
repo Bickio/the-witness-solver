@@ -12,6 +12,7 @@ fn simple_sat() {
             pos: Pos { x: 0, y: 0 },
             dir: EdgeDirection::Vertical,
         })],
+        squares: vec![],
     };
     assert_eq!(
         solve(&puzzle),
@@ -43,6 +44,7 @@ fn dead_end() {
             dir: EdgeDirection::Vertical,
         })],
         dots: vec![IntersectionOrEdge::Intersection(Pos { x: 1, y: 0 })],
+        squares: vec![],
     };
     assert_eq!(solve(&puzzle), None);
 }
@@ -65,6 +67,25 @@ fn no_loops() {
             }),
         ],
         dots: vec![IntersectionOrEdge::Intersection(Pos { x: 0, y: 2 })],
+        squares: vec![],
     };
     assert_eq!(solve(&puzzle), None);
+}
+
+#[test]
+fn internal_line() {
+    let puzzle = Puzzle {
+        width: 3,
+        height: 2,
+        sources: vec![IntersectionOrEdge::Intersection(Pos { x: 1, y: 1 })],
+        exits: vec![IntersectionOrEdge::Intersection(Pos { x: 2, y: 1 })],
+        broken: vec![],
+        dots: vec![IntersectionOrEdge::Edge(Edge {
+            pos: Pos { x: 1, y: 1 },
+            dir: EdgeDirection::Horizontal,
+        })],
+        squares: vec![],
+        suns: vec![],
+    };
+    assert!(matches!(solve(&puzzle), Some(_)));
 }
