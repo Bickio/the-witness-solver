@@ -13,6 +13,7 @@ fn simple_sat() {
             dir: EdgeDirection::Vertical,
         })],
         squares: vec![],
+        suns: vec![],
     };
     assert_eq!(
         solve(&puzzle),
@@ -45,6 +46,7 @@ fn dead_end() {
         })],
         dots: vec![IntersectionOrEdge::Intersection(Pos { x: 1, y: 0 })],
         squares: vec![],
+        suns: vec![],
     };
     assert_eq!(solve(&puzzle), None);
 }
@@ -68,6 +70,7 @@ fn no_loops() {
         ],
         dots: vec![IntersectionOrEdge::Intersection(Pos { x: 0, y: 2 })],
         squares: vec![],
+        suns: vec![],
     };
     assert_eq!(solve(&puzzle), None);
 }

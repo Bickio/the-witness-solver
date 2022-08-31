@@ -7,6 +7,7 @@ pub struct Puzzle {
     pub broken: Vec<IntersectionOrEdge>,
     pub dots: Vec<IntersectionOrEdge>,
     pub squares: Vec<ColouredSymbol>,
+    pub suns: Vec<ColouredSymbol>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

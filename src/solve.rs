@@ -34,6 +34,7 @@ impl<'ctx> Node<'ctx> {
 #[derive(Debug, Clone)]
 enum Symbol {
     Square(Colour),
+    Sun(Colour),
 }
 
 #[derive(Debug, Clone)]
@@ -253,6 +254,7 @@ impl<'ctx> PuzzleModel<'ctx> {
         model.add_exits(&p.exits);
         model.add_dots(&p.dots);
         model.add_squares(&p.squares);
+        model.add_suns(&p.suns);
         model
     }
 
@@ -289,6 +291,12 @@ impl<'ctx> PuzzleModel<'ctx> {
     fn add_squares(&mut self, squares: &[puzzle::ColouredSymbol]) {
         for s in squares {
             self.cell_mut(&s.pos).symbol = Some(Symbol::Square(s.colour));
+        }
+    }
+
+    fn add_suns(&mut self, suns: &[puzzle::ColouredSymbol]) {
+        for s in suns {
+            self.cell_mut(&s.pos).symbol = Some(Symbol::Sun(s.colour));
         }
     }
 
@@ -564,6 +572,17 @@ impl<'ctx> PuzzleModel<'ctx> {
     }
 
     fn constrain_symbols(&self, solver: &z3::Solver) {
+        let coloured_symbol_regions: Vec<_> = self
+            .cell_positions()
+            .iter()
+            .map(|pos| self.cell(pos))
+            .filter_map(|cell| match &cell.symbol {
+                Some(symbol) => match symbol {
+                    Symbol::Square(colour) | Symbol::Sun(colour) => Some((colour, &cell.region)),
+                },
+                None => None,
+            })
+            .collect();
         for pos in self.cell_positions() {
             let cell = self.cell(&pos);
             match &cell.symbol {
@@ -578,6 +597,22 @@ impl<'ctx> PuzzleModel<'ctx> {
                             &region_square_color
                                 ._eq(&z3::ast::Int::from_i64(self.ctx, *colour as i64)),
                         );
+                    }
+                    Symbol::Sun(sun_colour) => {
+                        let same_colour_and_region = coloured_symbol_regions
+                            .iter()
+                            .filter(|(colour, _region)| colour == &sun_colour)
+                            .map(|(_colour, region)| region._eq(&cell.region))
+                            .collect::<Vec<_>>();
+                        solver.assert(&z3::ast::Bool::pb_eq(
+                            self.ctx,
+                            same_colour_and_region
+                                .iter()
+                                .map(|cond| (cond, 1))
+                                .collect::<Vec<_>>()
+                                .as_ref(),
+                            2,
+                        ));
                     }
                 },
                 None => {}
