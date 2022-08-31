@@ -10,6 +10,7 @@ fn minimal_sat() {
         broken: vec![],
         dots: vec![],
         squares: vec![],
+        suns: vec![],
     };
     assert_eq!(
         solve(&puzzle),
@@ -30,6 +31,7 @@ fn minimal_unsat() {
         })],
         dots: vec![],
         squares: vec![],
+        suns: vec![],
     };
     assert_eq!(solve(&puzzle), None);
 }
@@ -47,6 +49,7 @@ fn simple_sat() {
         })],
         dots: vec![],
         squares: vec![],
+        suns: vec![],
     };
     assert_eq!(
         solve(&puzzle),
@@ -79,6 +82,7 @@ fn moving_upwards() {
         })],
         dots: vec![],
         squares: vec![],
+        suns: vec![],
     };
     assert_eq!(
         solve(&puzzle),
@@ -111,6 +115,7 @@ fn simple_unsat() {
         ],
         dots: vec![],
         squares: vec![],
+        suns: vec![],
     };
     assert_eq!(solve(&puzzle), None);
 }
@@ -148,6 +153,7 @@ fn sat_with_edges() {
         ],
         dots: vec![],
         squares: vec![],
+        suns: vec![],
     };
     assert!(matches!(solve(&puzzle), Some(_)));
 }
@@ -189,6 +195,7 @@ fn unsat_with_edges() {
         ],
         dots: vec![],
         squares: vec![],
+        suns: vec![],
     };
     assert_eq!(solve(&puzzle), None);
 }
@@ -206,6 +213,7 @@ fn no_source() {
         broken: vec![],
         dots: vec![],
         squares: vec![],
+        suns: vec![],
     };
     assert_eq!(solve(&puzzle), None);
 }
@@ -223,6 +231,7 @@ fn no_exit() {
         broken: vec![],
         dots: vec![],
         squares: vec![],
+        suns: vec![],
     };
     assert_eq!(solve(&puzzle), None);
 }
@@ -246,6 +255,7 @@ fn multiple_sources() {
         ],
         dots: vec![],
         squares: vec![],
+        suns: vec![],
     };
     assert!(matches!(solve(&puzzle), Some(_)));
 }
@@ -272,6 +282,7 @@ fn multiple_exits() {
         ],
         dots: vec![],
         squares: vec![],
+        suns: vec![],
     };
     assert!(matches!(solve(&puzzle), Some(_)));
 }

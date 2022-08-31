@@ -21,6 +21,7 @@ fn two_squares_sat() {
                 colour: Colour::White,
             },
         ],
+        suns: vec![],
     };
     assert!(matches!(solve(&puzzle), Some(_)));
 }
@@ -47,6 +48,7 @@ fn two_squares_unsat() {
                 colour: Colour::White,
             },
         ],
+        suns: vec![],
     };
     assert_eq!(solve(&puzzle), None);
 }
@@ -126,6 +128,7 @@ fn quarry_door_sat() {
                 colour: Colour::White,
             },
         ],
+        suns: vec![],
     };
     assert!(matches!(solve(&puzzle), Some(_)));
 }
@@ -205,6 +208,7 @@ fn quarry_door_unsat() {
                 colour: Colour::White,
             },
         ],
+        suns: vec![],
     };
     let result = solve(&puzzle);
     println!("{:#?}", result);
