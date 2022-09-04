@@ -62,7 +62,6 @@ struct PuzzleModel<'ctx> {
     vertical_edges: Vec<Vec<Node<'ctx>>>,
     cells: Vec<Vec<Cell<'ctx>>>,
     num_regions: z3::ast::Int<'ctx>,
-    region_square_colours: z3::ast::Array<'ctx>,
 }
 
 impl<'ctx> PuzzleModel<'ctx> {
@@ -242,12 +241,6 @@ impl<'ctx> PuzzleModel<'ctx> {
             vertical_edges: Self::create_2d_vec(p.width + 1, p.height, || Node::default(ctx)),
             cells: Self::create_2d_vec(p.width, p.height, || Cell::default(ctx)),
             num_regions: z3::ast::Int::fresh_const(ctx, "num_regions"),
-            region_square_colours: z3::ast::Array::fresh_const(
-                ctx,
-                "region_square_colours",
-                &z3::Sort::int(ctx),
-                &z3::Sort::int(ctx),
-            ),
         };
         model.add_broken(&p.broken);
         model.add_sources(&p.sources);
@@ -587,17 +580,10 @@ impl<'ctx> PuzzleModel<'ctx> {
             let cell = self.cell(&pos);
             match &cell.symbol {
                 Some(symbol) => match symbol {
-                    Symbol::Square(colour) => {
-                        let region_square_color = self
-                            .region_square_colours
-                            .select(&cell.region)
-                            .as_int()
-                            .unwrap();
-                        solver.assert(
-                            &region_square_color
-                                ._eq(&z3::ast::Int::from_i64(self.ctx, *colour as i64)),
-                        );
-                    }
+                    Symbol::Square(square_colour) => coloured_symbol_regions
+                        .iter()
+                        .filter(|(colour, _)| *colour != square_colour)
+                        .for_each(|(_, region)| solver.assert(&region._eq(&cell.region).not())),
                     Symbol::Sun(sun_colour) => {
                         let same_colour_and_region = coloured_symbol_regions
                             .iter()
