@@ -214,3 +214,34 @@ fn quarry_door_unsat() {
     println!("{:#?}", result);
     assert!(matches!(result, None));
 }
+
+#[test]
+fn square_with_suns_unsat() {
+    let puzzle = Puzzle {
+        width: 1,
+        height: 3,
+        sources: vec![IntersectionOrEdge::Intersection(Pos { x: 0, y: 0 })],
+        exits: vec![IntersectionOrEdge::Intersection(Pos { x: 1, y: 3 })],
+        broken: vec![
+            IntersectionOrEdge::Intersection(Pos { x: 0, y: 1 }),
+            IntersectionOrEdge::Intersection(Pos { x: 0, y: 2 }),
+            IntersectionOrEdge::Intersection(Pos { x: 0, y: 3 }),
+        ],
+        dots: vec![],
+        squares: vec![ColouredSymbol {
+            pos: Pos { x: 0, y: 0 },
+            colour: Colour::Black,
+        }],
+        suns: vec![
+            ColouredSymbol {
+                pos: Pos { x: 0, y: 1 },
+                colour: Colour::White,
+            },
+            ColouredSymbol {
+                pos: Pos { x: 0, y: 2 },
+                colour: Colour::White,
+            },
+        ],
+    };
+    assert_eq!(solve(&puzzle), None);
+}
