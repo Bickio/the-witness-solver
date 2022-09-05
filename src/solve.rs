@@ -576,11 +576,20 @@ impl<'ctx> PuzzleModel<'ctx> {
                 None => None,
             })
             .collect();
+        let square_regions: Vec<_> = self
+            .cell_positions()
+            .iter()
+            .map(|pos| self.cell(pos))
+            .filter_map(|cell| match &cell.symbol {
+                Some(Symbol::Square(colour)) => Some((colour, &cell.region)),
+                _ => None,
+            })
+            .collect();
         for pos in self.cell_positions() {
             let cell = self.cell(&pos);
             match &cell.symbol {
                 Some(symbol) => match symbol {
-                    Symbol::Square(square_colour) => coloured_symbol_regions
+                    Symbol::Square(square_colour) => square_regions
                         .iter()
                         .filter(|(colour, _)| *colour != square_colour)
                         .for_each(|(_, region)| solver.assert(&region._eq(&cell.region).not())),

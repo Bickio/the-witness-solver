@@ -216,7 +216,7 @@ fn quarry_door_unsat() {
 }
 
 #[test]
-fn square_with_suns_unsat() {
+fn square_with_suns_sat() {
     let puzzle = Puzzle {
         width: 1,
         height: 3,
@@ -243,5 +243,5 @@ fn square_with_suns_unsat() {
             },
         ],
     };
-    assert_eq!(solve(&puzzle), None);
+    assert!(matches!(solve(&puzzle), Some(_)));
 }
